@@ -27,7 +27,7 @@ func init() {
 	wordLists := map[Tag]string{
 		Pre:   "_,^",
 		Num:   "0,1,2,3,4,5,6,7,8,9",
-		Class: "p,s,w,z,n",
+		Class: "p,s,m,z,n",
 		End:   "$",
 	}
 	for tag, wordList := range wordLists {

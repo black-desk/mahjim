@@ -25,9 +25,9 @@ a tool to generate mahjong image
 
 你可以直接使用上面提到的demo, 它运行在 https://mahjim.black-desk.cn, 你可以这样来使用它:
 
-下面我们会说到 `123w` 代表 一万二万三万, 那么当你访问 https://mahjim.black-desk.cn/123w 就可以得到一张如下所示的图片:
+下面我们会说到 `123m` 代表 一万二万三万, 那么当你访问 https://mahjim.black-desk.cn/123m 就可以得到一张如下所示的图片:
 
-![123w](https://mahjim.black-desk.cn/123w)
+![123m](https://mahjim.black-desk.cn/123m)
 
 本文档中的图片也都是这么生成的.
 
@@ -35,7 +35,7 @@ a tool to generate mahjong image
 
 ### 基础语法
 
-日麻中有用 p s w 来表示饼子, 条 (索) 子, 万字的习惯, 并且字牌按照 东南西北白发中 的顺序编号后用 z 表示, 比如 5z 表示白.
+日麻中有用 p s m 来表示饼子, 条 (索) 子, 万字的习惯, 并且字牌按照 东南西北白发中 的顺序编号后用 z 表示, 比如 5z 表示白.
 
 所以我们可以用 `1s2s3s` 表示一条二条三条:
 
@@ -59,13 +59,13 @@ a tool to generate mahjong image
 
 ### 吃 碰 杠与加杠
 
-当发生吃碰杠的时候, 有一些牌会被横置, 在以上规则的基础上, 用 `_1w` 表示横置的一万:
+当发生吃碰杠的时候, 有一些牌会被横置, 在以上规则的基础上, 用 `_1m` 表示横置的一万:
 
-![_1w](https://mahjim.black-desk.cn/_1w)
+![_1m](https://mahjim.black-desk.cn/_1m)
 
-那么我吃上家的1w形成的面子123w, 可以如此表示 `_123w`:
+那么我吃上家的 1m 形成的面子 123m, 可以如此表示 `_123m`:
 
-![_123w](https://mahjim.black-desk.cn/_123w)
+![_123m](https://mahjim.black-desk.cn/_123m)
 
 碰的例子也类似:
 
@@ -81,7 +81,7 @@ a tool to generate mahjong image
 
 ### 日麻与国标
 
-可以在整个字符串的前面加上 `cn|` 或者 `jp` 来说明希望生成 国标/日麻 图案, 如果不做说明默认是日麻图案, 例如以下分别是 `cn|3白` 和 `jp|3白`
+可以在整个字符串的前面加上 `cn|` 或者 `jp|` 来说明希望生成 国标/日麻 图案, 如果不做说明默认是日麻图案, 例如以下分别是 `cn|3白` 和 `jp|3白`
 
 ![cn|3白](https://mahjim.black-desk.cn/cn|3白)
 
