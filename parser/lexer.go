@@ -4,23 +4,13 @@ import "errors"
 
 type Lexer struct {
 	source []rune
-	style  *Style
 	now    int
 }
 
-func NewLexer(sources []string) *Lexer {
-	if len(sources) == 1 {
-		return &Lexer{
-			source: []rune(sources[0] + "$"),
-			style:  NewStyle(""),
-			now:    0,
-		}
-	} else {
-		return &Lexer{
-			source: []rune(sources[1] + "$"),
-			style:  NewStyle(sources[0]),
-			now:    0,
-		}
+func newLexer(source *string) *Lexer {
+	return &Lexer{
+		source: []rune(*source + "$"),
+		now:    0,
 	}
 }
 

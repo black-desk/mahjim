@@ -1,27 +1,54 @@
 package parser
 
-import "strings"
+import "net/url"
 
 type Style struct {
-	country string
-	color   string
+	Country string
+	Color   string
 }
 
-func NewStyle(source string) *Style {
-	var style Style
-	if strings.Index(source, "cn") >= 0 {
-		style.country = "cn"
-	} else {
-		style.country = "jp"
+var allow_country = []string{"cn", "jp"}
+var allow_color = []string{"orange", "blue"}
+
+func newStyle(query *url.Values) *Style {
+	color := query.Get("color")
+	if color == "" {
+		color = "blue"
 	}
-	//if strings.Index(source,"B")>=0{
-	//	style.color="B"
-	//} else {
-	//	style.color="O"
-	//}
-	return &style
+	country := query.Get("country")
+	if country == "" {
+		country = "jp"
+	}
+
+	s := &Style{
+		Color:   color,
+		Country: country,
+	}
+	if is_legal(s) {
+		return s
+	} else {
+		return nil
+	}
 }
 
-func (s *Style) toString() string {
-	return s.country
+func is_legal(s *Style) bool {
+	return color_is_legal(s) && country_is_legal(s)
+}
+
+func color_is_legal(s *Style) bool {
+	for _, c := range allow_color {
+		if s.Color == c {
+			return true
+		}
+	}
+	return false
+}
+
+func country_is_legal(s *Style) bool {
+	for _, c := range allow_country {
+		if s.Country == c {
+			return true
+		}
+	}
+	return false
 }

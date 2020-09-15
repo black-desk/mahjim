@@ -2,25 +2,34 @@ package parser
 
 import (
 	"errors"
+	"github.com/disintegration/imaging"
 	"image"
+	"image/color"
 	"image/png"
+	"net/url"
 	"os"
 	"strconv"
 )
 
 type Parser struct {
-	Imgs  *[]*image.Image
+	imgs  *[]image.Image
 	lexer *Lexer
 	look  *Word
+	style *Style
 }
 
 type Pair [2]int
 
-func NewParser(sources []string) Parser {
-	return Parser{
-		Imgs:  &[]*image.Image{},
-		lexer: NewLexer(sources),
+func GetParser(maj_string *string, maj_style_config *url.Values) *Parser {
+	return newParser(maj_string, maj_style_config) // TODO parser 重复初始化?多线程? 已经解析过的字符串不解析第二次
+}
+
+func newParser(maj_string *string, maj_style_config *url.Values) *Parser {
+	return &Parser{
+		imgs:  &[]image.Image{},
+		lexer: newLexer(maj_string),
 		look:  nil,
+		style: newStyle(maj_style_config),
 	}
 }
 
@@ -34,16 +43,16 @@ func (p *Parser) notfound(object string) {
 	panic("expect a " + object + ", but found a " + string(p.look.text))
 }
 
-func (p *Parser) Parse() error {
+func (p *Parser) Parse() (*[]image.Image, error) {
 	err := p.move()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	err = p.majs()
 	if err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return p.imgs, nil
 }
 
 type Position uint8
@@ -58,6 +67,7 @@ type nodeP struct {
 	pos   Position
 	num   int //-1 means is a flower
 	class nodeClass
+	style *Style
 }
 
 var pos2string = map[Position]string{
@@ -66,21 +76,38 @@ var pos2string = map[Position]string{
 	double:  "^",
 }
 
-func (p *nodeP) toString() string {
+func (p *nodeP) getFileName() string {
 	if p.num >= 0 {
-		return pos2string[p.pos] + strconv.Itoa(p.num) + string(p.class)
+		return strconv.Itoa(p.num) + string(p.class)
 	} else {
-		return pos2string[p.pos] + string(p.class)
+		if p.class != "+" {
+			return string(p.class)
+		} else {
+			return p.style.Color
+		}
 	}
 }
 
-func (p *nodeP) getImg(l *Lexer) (*image.Image, error) {
-	reader, err := os.Open("files/" + l.style.toString() + p.toString() + ".png")
+func (p *nodeP) getImg(l *Lexer) (image.Image, error) {
+	file, err := os.Open("files/" + p.getFileName() + ".png") // cache
 	if err != nil {
-		return nil, err
+		file, err = os.Open("files/" + p.getFileName() + p.style.Country + ".png") // cache
 	}
-	img, err := png.Decode(reader)
-	return &img, err
+	src, err := png.Decode(file)
+	var res image.Image
+	switch p.pos {
+	case rotated:
+		res = imaging.Rotate90(src)
+	case normal:
+		res = src
+	case double:
+		res = imaging.New(src.Bounds().Dy(), src.Bounds().Dx()*2, color.Black)
+		rotatedSrc := imaging.Rotate90(src)
+		res = imaging.Paste(res, rotatedSrc, image.Point{0, 0})
+		res = imaging.Paste(res, rotatedSrc, image.Point{0, src.Bounds().Dx()})
+	}
+
+	return res, err
 }
 
 func (p *Parser) p() (*nodeP, error) {
@@ -93,8 +120,9 @@ func (p *Parser) p() (*nodeP, error) {
 		return nil, err
 	}
 	node := nodeP{
-		pos: pos,
-		num: num,
+		pos:   pos,
+		num:   num,
+		style: p.style,
 	}
 	return &node, nil
 }
@@ -119,7 +147,7 @@ type nodeGroup struct {
 	ps []*nodeP
 }
 
-func (n nodeGroup) output(imgs *[]*image.Image, l *Lexer) error {
+func (n nodeGroup) output(imgs *[]image.Image, l *Lexer) error {
 	for _, p := range n.ps {
 		img, err := p.getImg(l)
 		if err != nil {
@@ -151,7 +179,7 @@ func (p *Parser) group() error {
 			return err
 		}
 	}
-	err := node.output(p.Imgs, p.lexer)
+	err := node.output(p.imgs, p.lexer)
 	return err
 }
 
