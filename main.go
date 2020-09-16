@@ -35,11 +35,13 @@ func main() {
 }
 
 func handler(writer http.ResponseWriter, request *http.Request) {
-
+	if len(request.URL.Path) <= 1 {
+		welcome(writer)
+		return
+	}
 	maj_string := request.URL.Path[1:] // TODO: handle favicon.ico maj_config := request.URL.Query()
 
 	var img image.Image
-
 	if maj_string == "favicon.ico" {
 		img = logo
 	} else {
@@ -52,6 +54,10 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 		img = merger.Merge(imgs)
 	}
 	writeImg(writer, &img)
+}
+
+func welcome(writer http.ResponseWriter) {
+	writer.Write([]byte("<html><body>Welcome to Mahjim, a tool use to generate mahjong images!<br> Docs <a href=\"https://github.com/black-desk/mahjim\">here</a></body></html>"))
 }
 
 func writeImg(writer http.ResponseWriter, img *image.Image) {
