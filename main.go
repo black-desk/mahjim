@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"flag"
 	"fmt"
 	"image"
 	"image/png"
@@ -14,6 +15,7 @@ import (
 	"github.com/black-desk/mahjim/parser"
 )
 
+var port = flag.Uint("p", 8080, "the port server listen at")
 var logo image.Image
 
 func init() {
@@ -30,8 +32,9 @@ func init() {
 }
 
 func main() {
+	flag.Parse()
 	http.HandleFunc("/", handler)
-	fmt.Println(http.ListenAndServe(":8080", nil)) //TODO: port config
+	fmt.Println(http.ListenAndServe(":"+strconv.FormatUint(uint64(*port), 10), nil))
 }
 
 func handler(writer http.ResponseWriter, request *http.Request) {
@@ -39,7 +42,7 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 		welcome(writer)
 		return
 	}
-	maj_string := request.URL.Path[1:] // TODO: handle favicon.ico maj_config := request.URL.Query()
+	maj_string := request.URL.Path[1:]
 
 	var img image.Image
 	if maj_string == "favicon.ico" {
