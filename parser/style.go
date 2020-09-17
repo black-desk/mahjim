@@ -1,10 +1,12 @@
 package parser
 
 import "net/url"
+import "strconv"
 
 type Style struct {
 	Country string
 	Color   string
+	Scale   float64
 }
 
 var allow_country = []string{"cn", "jp"}
@@ -19,10 +21,15 @@ func newStyle(query *url.Values) *Style {
 	if country == "" {
 		country = "jp"
 	}
+	scale, err := strconv.ParseFloat(query.Get("scale"), 64)
+	if err != nil {
+		scale = 1
+	}
 
 	s := &Style{
 		Color:   color,
 		Country: country,
+		Scale:   scale,
 	}
 	if is_legal(s) {
 		return s

@@ -106,7 +106,7 @@ func (p *nodeP) getImg(l *Lexer) (image.Image, error) {
 		res = imaging.Paste(res, rotatedSrc, image.Point{0, 0})
 		res = imaging.Paste(res, rotatedSrc, image.Point{0, src.Bounds().Dx()})
 	}
-
+	res = imaging.Thumbnail(res, int(float64(res.Bounds().Dx())*p.style.Scale), int(float64(res.Bounds().Dy())*p.style.Scale), imaging.Box)
 	return res, err
 }
 
