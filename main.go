@@ -56,6 +56,7 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 		imgs, err := p.Parse()
 		if err != nil {
 			writeErr(writer, err)
+			return
 		}
 		img = merger.Merge(imgs)
 	}
@@ -79,8 +80,6 @@ func writeImg(writer http.ResponseWriter, img image.Image) {
 }
 
 func writeErr(writer http.ResponseWriter, err error) {
-	header := writer.Header()
-	header.Add("Content-Type", "application/json")
 	writer.WriteHeader(http.StatusNotFound)
-	fmt.Fprintln(writer, err)
+	writer.Write([]byte("error : " + err.Error()))
 }

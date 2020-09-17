@@ -240,31 +240,27 @@ func (p *Parser) class(ps *[]*nodeP) error {
 		err := p.move()
 		return err
 	} else {
-		return errors.New("expect a class but found " + string(p.look.text))
+		return errors.New("expect \"p/s/m/z\" but found \"" + string(p.look.text) + "\"")
 	}
 }
 
 func (p *Parser) f(ps *[]*nodeP) error {
 	var newps = []*nodeP{}
-	if p.look.tag == F {
-		switch len(*ps) {
-		case 0:
-			*ps = append(*ps, &nodeP{pos: normal, num: 1, style: p.style})
-		case 1:
-			break
-		default:
-			return errors.New("expect a class but found " + string(p.look.text))
-		}
-		i := (*(*ps)[0]).num
-		(*(*ps)[0]).num = -1
-		(*(*ps)[0]).class = nodeClass(p.look.text)
-		for ; i > 0; i-- {
-			newps = append(newps, (*ps)[0])
-		}
-		*ps = newps
-		err := p.move()
-		return err
-	} else {
-		return errors.New("expect a flower but found " + string(p.look.text))
+	switch len(*ps) {
+	case 0:
+		*ps = append(*ps, &nodeP{pos: normal, num: 1, style: p.style})
+	case 1:
+		break
+	default:
+		return errors.New("number>10 cannot be follow by a \"" + string(p.look.text) + "\"")
 	}
+	i := (*(*ps)[0]).num
+	(*(*ps)[0]).num = -1
+	(*(*ps)[0]).class = nodeClass(p.look.text)
+	for ; i > 0; i-- {
+		newps = append(newps, (*ps)[0])
+	}
+	*ps = newps
+	err := p.move()
+	return err
 }
