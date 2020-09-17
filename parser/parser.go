@@ -15,7 +15,7 @@ var maj_height int = 100
 var maj_width int = 70
 
 type Parser struct {
-	imgs  *[]image.Image
+	imgs  *[][]image.Image
 	lexer *Lexer
 	look  *Word
 	style *Style
@@ -29,10 +29,12 @@ func GetParser(maj_string *string, maj_style_config *url.Values) *Parser {
 
 func newParser(maj_string *string, maj_style_config *url.Values) *Parser {
 	return &Parser{
-		imgs:  &[]image.Image{},
+		imgs:  &[][]image.Image{{}},
 		lexer: newLexer(maj_string),
 		look:  nil,
 		style: newStyle(maj_style_config),
+		row:   0,
+		col:   0,
 	}
 }
 
@@ -46,7 +48,7 @@ func (p *Parser) notfound(object string) {
 	panic("expect a " + object + ", but found a " + string(p.look.text))
 }
 
-func (p *Parser) Parse() (*[]image.Image, error) {
+func (p *Parser) Parse() (*[][]image.Image, error) {
 	err := p.move()
 	if err != nil {
 		return nil, err
@@ -107,10 +109,14 @@ func (p *nodeP) getImg(l *Lexer) (image.Image, error) {
 	case normal:
 		res = src
 	case double:
-		res = imaging.New(src.Bounds().Dy(), src.Bounds().Dx()*2, color.Black)
-		rotatedSrc := imaging.Rotate90(src)
-		res = imaging.Paste(res, rotatedSrc, image.Point{0, 0})
-		res = imaging.Paste(res, rotatedSrc, image.Point{0, src.Bounds().Dx()})
+		if p.style.River {
+			res = imaging.AdjustBrightness(src, -50)
+		} else {
+			res = imaging.New(src.Bounds().Dy(), src.Bounds().Dx()*2, color.Black)
+			rotatedSrc := imaging.Rotate90(src)
+			res = imaging.Paste(res, rotatedSrc, image.Point{0, 0})
+			res = imaging.Paste(res, rotatedSrc, image.Point{0, src.Bounds().Dx()})
+		}
 	}
 	res = imaging.Thumbnail(res, int(float64(res.Bounds().Dx())*p.style.Scale), int(float64(res.Bounds().Dy())*p.style.Scale), imaging.Box)
 	return res, err
@@ -153,13 +159,21 @@ type nodeGroup struct {
 	ps []*nodeP
 }
 
-func (n nodeGroup) output(imgs *[]image.Image, l *Lexer) error {
+var row = 0
+var col = 0
+
+func (n nodeGroup) output(imgs *[][]image.Image, l *Lexer) error {
 	for _, p := range n.ps {
 		img, err := p.getImg(l)
 		if err != nil {
 			return err
 		}
-		(*imgs) = append((*imgs), img)
+		(*imgs)[row] = append((*imgs)[row], img)
+		if p.style.River && col%6 == 5 {
+			(*imgs) = append((*imgs), []image.Image{})
+			row++
+		}
+		col++
 	}
 	return nil
 }
