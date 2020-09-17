@@ -11,6 +11,9 @@ import (
 	"strconv"
 )
 
+var maj_height int = 100
+var maj_width int = 70
+
 type Parser struct {
 	imgs  *[]image.Image
 	lexer *Lexer
@@ -89,6 +92,9 @@ func (p *nodeP) getFileName() string {
 }
 
 func (p *nodeP) getImg(l *Lexer) (image.Image, error) {
+	if p.class == "|" {
+		return image.NewNRGBA(image.Rect(0, 0, int(float64(maj_width/10)*p.style.Scale), int(float64(maj_height)*p.style.Scale))), nil
+	}
 	file, err := os.Open("files/" + p.getFileName() + ".png") // cache
 	if err != nil {
 		file, err = os.Open("files/" + p.getFileName() + p.style.Country + ".png") // cache
@@ -230,7 +236,7 @@ func (p *Parser) f(ps *[]*nodeP) error {
 	if p.look.tag == F {
 		switch len(*ps) {
 		case 0:
-			*ps = append(*ps, &nodeP{pos: normal, num: 1})
+			*ps = append(*ps, &nodeP{pos: normal, num: 1, style: p.style})
 		case 1:
 			break
 		default:

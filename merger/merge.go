@@ -13,9 +13,9 @@ func Merge(imgs *[]image.Image) image.Image {
 		height = Max(height, img.Bounds().Max.Y)
 	}
 	for _, img := range *imgs {
-		sp := image.Point{width, height - img.Bounds().Max.Y}
+		sp := image.Point{width, height - img.Bounds().Dy()}
 		recs = append(recs, &image.Rectangle{sp, sp.Add(img.Bounds().Size())})
-		width += img.Bounds().Max.X
+		width += img.Bounds().Dx()
 	}
 	rec := image.Rectangle{image.Point{0, 0}, (*recs[len(recs)-1]).Max}
 	rgba := image.NewRGBA(rec)

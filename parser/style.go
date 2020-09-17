@@ -7,6 +7,7 @@ type Style struct {
 	Country string
 	Color   string
 	Scale   float64
+	River   bool
 }
 
 var allow_country = []string{"cn", "jp"}
@@ -14,48 +15,27 @@ var allow_color = []string{"orange", "blue"}
 
 func newStyle(query *url.Values) *Style {
 	color := query.Get("color")
-	if color == "" {
+	if color != "orange" {
 		color = "blue"
 	}
 	country := query.Get("country")
-	if country == "" {
+	if country != "cn" {
 		country = "jp"
 	}
 	scale, err := strconv.ParseFloat(query.Get("scale"), 64)
 	if err != nil {
 		scale = 1
 	}
+	if scale > 10 {
+		scale = 10
+	}
+	river := query.Get("river") == "true"
 
 	s := &Style{
 		Color:   color,
 		Country: country,
 		Scale:   scale,
+		River:   river,
 	}
-	if is_legal(s) {
-		return s
-	} else {
-		return nil
-	}
-}
-
-func is_legal(s *Style) bool {
-	return color_is_legal(s) && country_is_legal(s)
-}
-
-func color_is_legal(s *Style) bool {
-	for _, c := range allow_color {
-		if s.Color == c {
-			return true
-		}
-	}
-	return false
-}
-
-func country_is_legal(s *Style) bool {
-	for _, c := range allow_country {
-		if s.Country == c {
-			return true
-		}
-	}
-	return false
+	return s
 }
