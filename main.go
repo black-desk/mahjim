@@ -38,13 +38,16 @@ func main() {
 }
 
 func handler(writer http.ResponseWriter, request *http.Request) {
+
 	if len(request.URL.Path) <= 1 {
 		welcome(writer)
 		return
 	}
+
 	maj_string := request.URL.Path[1:]
 
 	var img image.Image
+
 	if maj_string == "favicon.ico" {
 		img = logo
 	} else {
@@ -56,16 +59,16 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 		}
 		img = merger.Merge(imgs)
 	}
-	writeImg(writer, &img)
+	writeImg(writer, img)
 }
 
 func welcome(writer http.ResponseWriter) {
 	writer.Write([]byte("<html><body>Welcome to Mahjim, a tool use to generate mahjong images!<br> Docs <a href=\"https://github.com/black-desk/mahjim\">here</a></body></html>"))
 }
 
-func writeImg(writer http.ResponseWriter, img *image.Image) {
+func writeImg(writer http.ResponseWriter, img image.Image) {
 	buffer := new(bytes.Buffer)
-	if err := png.Encode(buffer, *img); err != nil {
+	if err := png.Encode(buffer, img); err != nil {
 		log.Println("unable to encode image.")
 	}
 	writer.Header().Set("Content-Type", "image/png")

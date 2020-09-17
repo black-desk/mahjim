@@ -1,6 +1,9 @@
 package parser
 
-import "strings"
+import (
+	"errors"
+	"strings"
+)
 
 type Word struct {
 	text rune
@@ -9,12 +12,11 @@ type Word struct {
 
 var wordTable = map[rune]*Word{}
 
-func GetWord(s rune) (*Word, error) {
+func getWord(s rune) (*Word, error) {
 	if w, exist := wordTable[s]; exist == true {
 		return w, nil
 	} else {
-		SetWord(s, F)
-		return wordTable[s], nil
+		return nil, errors.New("unrecognized character" + string(s))
 	}
 }
 func SetWord(s rune, tag Tag) {
@@ -28,6 +30,7 @@ func init() {
 		Pre:   "_,^",
 		Num:   "0,1,2,3,4,5,6,7,8,9",
 		Class: "p,s,m,z,n",
+		F:     "中,发,白,春,夏,秋,冬,东,南,西,北,梅,兰,竹,菊,|,+",
 		End:   "$",
 	}
 	for tag, wordList := range wordLists {

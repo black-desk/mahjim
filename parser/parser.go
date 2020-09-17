@@ -19,6 +19,8 @@ type Parser struct {
 	lexer *Lexer
 	look  *Word
 	style *Style
+	row   int
+	col   int
 }
 
 type Pair [2]int
@@ -93,7 +95,7 @@ func (p *nodeP) getFileName() string {
 	}
 }
 
-func (p *nodeP) getImg(l *Lexer) (image.Image, error) {
+func (p *nodeP) getImg() (image.Image, error) {
 	if p.class == "|" {
 		return image.NewNRGBA(image.Rect(0, 0, int(float64(maj_width/10)*p.style.Scale), int(float64(maj_height)*p.style.Scale))), nil
 	}
@@ -110,7 +112,7 @@ func (p *nodeP) getImg(l *Lexer) (image.Image, error) {
 		res = src
 	case double:
 		if p.style.River {
-			res = imaging.AdjustBrightness(src, -50)
+			res = imaging.AdjustBrightness(src, -40)
 		} else {
 			res = imaging.New(src.Bounds().Dy(), src.Bounds().Dx()*2, color.Black)
 			rotatedSrc := imaging.Rotate90(src)
@@ -159,21 +161,18 @@ type nodeGroup struct {
 	ps []*nodeP
 }
 
-var row = 0
-var col = 0
-
-func (n nodeGroup) output(imgs *[][]image.Image, l *Lexer) error {
+func (n nodeGroup) output(imgs *[][]image.Image, row *int, col *int) error {
 	for _, p := range n.ps {
-		img, err := p.getImg(l)
+		img, err := p.getImg()
 		if err != nil {
 			return err
 		}
-		(*imgs)[row] = append((*imgs)[row], img)
-		if p.style.River && col%6 == 5 {
+		(*imgs)[*row] = append((*imgs)[*row], img)
+		if p.style.River && *col%6 == 5 {
 			(*imgs) = append((*imgs), []image.Image{})
-			row++
+			*row++
 		}
-		col++
+		*col++
 	}
 	return nil
 }
@@ -199,7 +198,7 @@ func (p *Parser) group() error {
 			return err
 		}
 	}
-	err := node.output(p.imgs, p.lexer)
+	err := node.output(p.imgs, &p.row, &p.col)
 	return err
 }
 
