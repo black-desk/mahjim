@@ -39,3 +39,7 @@ func newStyle(query *url.Values) *Style {
 	}
 	return s
 }
+
+func (s *Style) str() string {
+	return "Cou:" + s.Country + "#Col:" + s.Color + "#S:" + strconv.FormatFloat(s.Scale, 'E', -1, 64) + "#R:" + strconv.FormatBool(s.River)
+}

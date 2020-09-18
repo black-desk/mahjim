@@ -163,5 +163,3 @@ a tool to generate mahjong image
 ## TODO
 
 - [ ] 性能测试
-- [ ] 解析器复用
-- [ ] 图片缓存

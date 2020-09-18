@@ -21,3 +21,7 @@ func (l *Lexer) scan() (*Word, error) {
 	l.now++
 	return getWord(s)
 }
+
+func (l *Lexer) str() string {
+	return string(l.source)
+}

@@ -2,17 +2,26 @@ package parser
 
 import (
 	"errors"
-	"github.com/disintegration/imaging"
 	"image"
 	"image/color"
 	"image/png"
 	"net/url"
 	"os"
 	"strconv"
+	"time"
+
+	"github.com/disintegration/imaging"
+	"github.com/patrickmn/go-cache"
 )
 
 var maj_height int = 100
 var maj_width int = 70
+
+var c *cache.Cache
+
+func init() {
+	c = cache.New(time.Duration(20*60*1e9), time.Duration(20*60*1e9))
+}
 
 type Parser struct {
 	imgs  *[][]image.Image
@@ -21,6 +30,10 @@ type Parser struct {
 	style *Style
 	row   int
 	col   int
+}
+
+func (p *Parser) Str() string {
+	return p.lexer.str() + "#" + p.style.str() + "#"
 }
 
 type Pair [2]int
@@ -77,6 +90,10 @@ type nodeP struct {
 	style *Style
 }
 
+func (p *nodeP) str() string {
+	return "p:" + pos2string[p.pos] + "#n:" + strconv.FormatInt(int64(p.num), 10) + "#c:" + string(p.class) + "#s:" + p.style.str()
+}
+
 var pos2string = map[Position]string{
 	normal:  "",
 	rotated: "_",
@@ -96,32 +113,43 @@ func (p *nodeP) getFileName() string {
 }
 
 func (p *nodeP) getImg() (image.Image, error) {
-	if p.class == "|" {
-		return image.NewNRGBA(image.Rect(0, 0, int(float64(maj_width/10)*p.style.Scale), int(float64(maj_height)*p.style.Scale))), nil
-	}
-	file, err := os.Open("files/" + p.getFileName() + ".png") // cache
-	if err != nil {
-		file, err = os.Open("files/" + p.getFileName() + p.style.Country + ".png") // cache
-	}
-	src, err := png.Decode(file)
-	var res image.Image
-	switch p.pos {
-	case rotated:
-		res = imaging.Rotate90(src)
-	case normal:
-		res = src
-	case double:
-		if p.style.River {
-			res = imaging.AdjustBrightness(src, -40)
+	key := p.str()
+	if object, got := c.Get(key); got {
+		return object.(image.Image), nil
+	} else {
+		var res image.Image
+		if p.class == "|" {
+			res = image.NewNRGBA(image.Rect(0, 0, int(float64(maj_width/10)*p.style.Scale), int(float64(maj_height)*p.style.Scale)))
 		} else {
-			res = imaging.New(src.Bounds().Dy(), src.Bounds().Dx()*2, color.Black)
-			rotatedSrc := imaging.Rotate90(src)
-			res = imaging.Paste(res, rotatedSrc, image.Point{0, 0})
-			res = imaging.Paste(res, rotatedSrc, image.Point{0, src.Bounds().Dx()})
+			file, err := os.Open("files/" + p.getFileName() + ".png") // cache
+			if err != nil {
+				file, err = os.Open("files/" + p.getFileName() + p.style.Country + ".png") // cache
+			}
+			src, err := png.Decode(file)
+			file.Close()
+			if err != nil {
+				return nil, err
+			}
+			switch p.pos {
+			case rotated:
+				res = imaging.Rotate90(src)
+			case normal:
+				res = src
+			case double:
+				if p.style.River {
+					res = imaging.AdjustBrightness(src, -40)
+				} else {
+					res = imaging.New(src.Bounds().Dy(), src.Bounds().Dx()*2, color.Black)
+					rotatedSrc := imaging.Rotate90(src)
+					res = imaging.Paste(res, rotatedSrc, image.Point{0, 0})
+					res = imaging.Paste(res, rotatedSrc, image.Point{0, src.Bounds().Dx()})
+				}
+			}
+			res = imaging.Thumbnail(res, int(float64(res.Bounds().Dx())*p.style.Scale), int(float64(res.Bounds().Dy())*p.style.Scale), imaging.Box)
+			c.Add(key, res, 0)
 		}
+		return res, nil
 	}
-	res = imaging.Thumbnail(res, int(float64(res.Bounds().Dx())*p.style.Scale), int(float64(res.Bounds().Dy())*p.style.Scale), imaging.Box)
-	return res, err
 }
 
 func (p *Parser) p() (*nodeP, error) {

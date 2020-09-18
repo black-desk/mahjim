@@ -10,13 +10,16 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/black-desk/mahjim/merger"
 	"github.com/black-desk/mahjim/parser"
+	"github.com/patrickmn/go-cache"
 )
 
 var port = flag.Uint("p", 8080, "the port server listen at")
 var logo image.Image
+var c *cache.Cache
 
 func init() {
 	// get logo
@@ -29,6 +32,7 @@ func init() {
 	if err != nil {
 		log.Output(1, err.Error())
 	}
+	c = cache.New(time.Duration(20*60*1e9), time.Duration(20*60*1e9))
 }
 
 func main() {
@@ -53,12 +57,18 @@ func handler(writer http.ResponseWriter, request *http.Request) {
 	} else {
 		maj_style_config := request.URL.Query()
 		p := parser.GetParser(&maj_string, &maj_style_config)
-		imgs, err := p.Parse()
-		if err != nil {
-			writeErr(writer, err)
-			return
+		key := p.Str()
+		if object, got := c.Get(key); got == true {
+			img = object.(image.Image)
+		} else {
+			imgs, err := p.Parse()
+			if err != nil {
+				writeErr(writer, err)
+				return
+			}
+			img = merger.Merge(imgs)
+			c.Add(key, img, 0)
 		}
-		img = merger.Merge(imgs)
 	}
 	writeImg(writer, img)
 }
