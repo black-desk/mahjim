@@ -25,7 +25,7 @@ a tool to generate mahjong image
 
 牌背颜色有两种可选:
 
-![blue](https://mahjim.black-desk.cn/+)
+![blue](https://mahjim.black-desk.cn/+?color=blue)
 
 ![orange](https://mahjim.black-desk.cn/+?color=orange)
 
