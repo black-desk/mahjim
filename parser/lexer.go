@@ -1,4 +1,4 @@
-package Parser
+package parser
 
 import "errors"
 
@@ -33,16 +33,16 @@ func (l *Lexer) expect(s rune) error {
 		l.now++
 		return nil
 	} else {
-		return errors.New("expect "+string(s)+", but found "+string(l.source[l.now]))
+		return errors.New("expect " + string(s) + ", but found " + string(l.source[l.now]))
 	}
 }
 
-func (l *Lexer) scan() (*Word,error) {
+func (l *Lexer) scan() (*Word, error) {
 	s := l.source[l.now]
-	err:=l.expect(s)
+	err := l.expect(s)
 	if err == nil {
 		return GetWord(s)
-	}else {
-		return nil,err
+	} else {
+		return nil, err
 	}
 }

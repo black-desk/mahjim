@@ -3,8 +3,6 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"github.com/black-desk/mahjim/Merger"
-	"github.com/black-desk/mahjim/Parser"
 	"image"
 	"image/png"
 	"log"
@@ -12,10 +10,13 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
+
+	"github.com/black-desk/mahjim/merger"
+	"github.com/black-desk/mahjim/parser"
 )
 
 func parse(majs string) (*[]*image.Image, error) {
-	parser := Parser.NewParser(strings.Split(majs, "|"))
+	parser := parser.NewParser(strings.Split(majs, "|"))
 	err := parser.Parse()
 	return parser.Imgs, err
 }
@@ -23,7 +24,7 @@ func parse(majs string) (*[]*image.Image, error) {
 func genMajImage(majs string) (*image.Image, error) {
 	imgs, err := parse(majs)
 	if err == nil {
-		img := Merger.Merge(imgs)
+		img := merger.Merge(imgs)
 		return &img, nil
 	} else {
 		return nil, err

@@ -1,18 +1,18 @@
-package Parser
+package parser
 
 import "strings"
 
 type Style struct {
 	country string
-	color string
+	color   string
 }
 
-func NewStyle(source string) *Style{
+func NewStyle(source string) *Style {
 	var style Style
-	if strings.Index(source,"cn")>=0{
-		style.country="cn"
-	}else{
-		style.country="jp"
+	if strings.Index(source, "cn") >= 0 {
+		style.country = "cn"
+	} else {
+		style.country = "jp"
 	}
 	//if strings.Index(source,"B")>=0{
 	//	style.color="B"
@@ -22,6 +22,6 @@ func NewStyle(source string) *Style{
 	return &style
 }
 
-func (s *Style) toString()string{
+func (s *Style) toString() string {
 	return s.country
 }

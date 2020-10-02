@@ -1,4 +1,4 @@
-package Parser
+package parser
 
 import "strings"
 
@@ -9,12 +9,12 @@ type Word struct {
 
 var wordTable = map[rune]*Word{}
 
-func GetWord(s rune) (*Word,error) {
+func GetWord(s rune) (*Word, error) {
 	if w, exist := wordTable[s]; exist == true {
-		return w,nil
+		return w, nil
 	} else {
-		SetWord(s,F)
-		return wordTable[s],nil
+		SetWord(s, F)
+		return wordTable[s], nil
 	}
 }
 func SetWord(s rune, tag Tag) {
