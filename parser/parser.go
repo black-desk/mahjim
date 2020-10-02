@@ -6,18 +6,20 @@ import (
 	"image/color"
 	"image/png"
 	"net/url"
-	"os"
 	"strconv"
 	"time"
 
+	_ "github.com/black-desk/mahjim/files"
 	"github.com/disintegration/imaging"
 	"github.com/patrickmn/go-cache"
+	"github.com/rakyll/statik/fs"
 )
 
 var maj_height int = 100
 var maj_width int = 70
 
 var c *cache.Cache
+var FS, _ = fs.NewWithNamespace("files")
 
 func init() {
 	c = cache.New(time.Duration(20*60*1e9), time.Duration(20*60*1e9))
@@ -121,9 +123,9 @@ func (p *nodeP) getImg() (image.Image, error) {
 		if p.class == "|" {
 			res = image.NewNRGBA(image.Rect(0, 0, int(float64(maj_width/10)*p.style.Scale), int(float64(maj_height)*p.style.Scale)))
 		} else {
-			file, err := os.Open("files/" + p.getFileName() + ".png") // cache
+			file, err := FS.Open("/" + p.getFileName() + ".png") // cache
 			if err != nil {
-				file, err = os.Open("files/" + p.getFileName() + p.style.Country + ".png") // cache
+				file, err = FS.Open("/" + p.getFileName() + p.style.Country + ".png") // cache
 			}
 			src, err := png.Decode(file)
 			file.Close()

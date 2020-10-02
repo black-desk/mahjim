@@ -1,3 +1,6 @@
+//go:generate statik -src=./assets/logo -p logo -ns logo
+//go:generate statik -src=./assets/files -p files -ns files
+
 package main
 
 import (
@@ -8,13 +11,14 @@ import (
 	"image/png"
 	"log"
 	"net/http"
-	"os"
 	"strconv"
 	"time"
 
+	_ "github.com/black-desk/mahjim/logo"
 	"github.com/black-desk/mahjim/merger"
 	"github.com/black-desk/mahjim/parser"
 	"github.com/patrickmn/go-cache"
+	"github.com/rakyll/statik/fs"
 )
 
 var port = flag.Uint("p", 8080, "the port server listen at")
@@ -23,7 +27,8 @@ var c *cache.Cache
 
 func init() {
 	// get logo
-	file, err := os.Open("./favicon.png")
+	FS, err := fs.NewWithNamespace("logo")
+	file, err := FS.Open("/favicon.png")
 	defer file.Close()
 	if err != nil {
 		log.Output(1, err.Error())
