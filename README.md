@@ -7,7 +7,7 @@ a tool to generate mahjong image
 
 ![国标](https://mahjim.black-desk.cn/1s|1234567z?country=cn)
 
-![日麻](https://mahjim.black-desk.cn/1s|1234567z?country=jp)
+![日麻](https://mahjim.black-desk.cn/1s|1234567z|?country=jp)
 
 支持吃,碰,明/暗杠的表示
 
@@ -81,7 +81,7 @@ a tool to generate mahjong image
 
 `白白白`:
 
-![白白白](https://mahjim.black-desk.cn/白白白?country=jp)
+![白白白](https://mahjim.black-desk.cn/白白白|?country=jp)
 
 当然我们可以输入 `666z` 来表示三张发:
 
