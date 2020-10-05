@@ -88,6 +88,7 @@ func writeImg(writer http.ResponseWriter, img image.Image) {
 		log.Println("unable to encode image.")
 	}
 	writer.Header().Set("Content-Type", "image/png")
+	writer.Header().Set("Cache-Control", "max-age=3600")
 	writer.Header().Set("Content-Length", strconv.Itoa(len(buffer.Bytes())))
 	if _, err := writer.Write(buffer.Bytes()); err != nil {
 		log.Println("unable to write image.")
