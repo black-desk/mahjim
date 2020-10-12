@@ -259,7 +259,11 @@ func (p *Parser) num() (int, error) {
 		}
 		return res, nil
 	} else {
-		return 1, nil
+		if p.look.tag == F {
+			return 1, nil
+		} else {
+			return -10, errors.New("expect a number here but found a " + string(p.look.text))
+		}
 	}
 }
 func (p *Parser) class(ps *[]*nodeP) error {
