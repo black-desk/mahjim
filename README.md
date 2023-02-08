@@ -237,7 +237,7 @@ TODO: 这个功能目前并不完善
 
 ## Docker
 
-使用命令 `docker run -d --name mahjim -p 8080:8080 blackddesk/mahjim` 即可启动容器
+使用命令 `docker run -d --name mahjim -p 8080:8080 blackdesk/mahjim` 即可启动容器
 
 ## 鸣谢
 
